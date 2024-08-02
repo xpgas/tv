@@ -1,0 +1,27 @@
+on:
+  schedule:
+      - cron: '0 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  epg:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: iptv-org/epg
+          path: epg
+      - uses: actions/setup-node@v4
+      - run: npm install
+        working-directory: epg
+      - run: npm run grab -- --site=tvguide.myjcom.jp
+        working-directory: epg
+      - run: gzip -c epg/guide.xml > guide.xml.gz
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: Initial commit
+          branch: master
+          commit_options: --amend
+          file_pattern: guide.xml.gz
+          push_options: --force
